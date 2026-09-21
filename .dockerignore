@@ -1,0 +1,19 @@
+# Build context excludes (both images build from the repo root).
+.git
+**/.git
+.venv/
+.claude/
+results/
+logs/
+wandb/
+checkpoints/
+**/checkpoints/
+**/__pycache__/
+*.pyc
+*.pyo
+*.ipynb
+*.log
+# Weights are mounted at runtime, never baked in.
+**/*.pth
+**/*.pt
+**/*.safetensors

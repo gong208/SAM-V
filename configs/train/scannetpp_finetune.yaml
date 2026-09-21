@@ -1,0 +1,31 @@
+# Stage 2 -- ScanNet++ fine-tune, recommended settings for new work.
+#
+# Identical to configs/paper/scannetpp_finetune.yaml except that it stops at 30
+# epochs rather than 50. Use the paper config if you are reproducing the
+# reported number; use this one if you are training your own model.
+mode: object_union
+
+datasets:
+  - type: scannetpp
+    root: ${SCANNETPP_ROOT}
+
+batch_size: 2
+
+use_offline_sam_embeddings: true
+offline_sam_embedding_subdir: sam_embeddings
+
+object_union_num_frames_per_object: 8
+object_union_num_objects: null
+object_union_pose_diverse_transition_epoch: 0
+use_object_union_sampling_for_val: true
+
+prompt_k_min: 3
+prompt_k_max: 5
+
+epochs: 30
+patience: 20
+save_every_n_epochs: 5
+
+finetune_from: ${STAGE1_CHECKPOINT}
+
+ckpt_tag: scannetpp_finetune

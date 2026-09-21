@@ -1,0 +1,45 @@
+# Tiny end-to-end smoke run for the STAGE-1 path: object_union sampling on a
+# small Hypersim split, with the prompt curriculum on. Single GPU, ~minutes.
+# Not a training recipe -- configs/train/hypersim_pretrain.yaml is.
+#
+# Unlike configs/smoke/hypersim.yaml (random mode) this needs the object-union
+# preprocessing first, which is also what stage 1 needs:
+#
+#   python preprocessing/precompute_instance_presence.py \
+#       --roots $HYPERSIM_ROOT/train_small $HYPERSIM_ROOT/val_small
+#
+#   WANDB_MODE=offline CUDA_VISIBLE_DEVICES=0 \
+#     python training/trainer.py --config configs/smoke/hypersim_object_union.yaml
+#
+# epochs 2 against prompt_transition_epoch 4 is deliberate: epoch 0 runs at
+# single_frame_ratio 0.0 (pure multi-frame pos/neg prompts) and epoch 1 at 0.25
+# (the mixed branch), so one smoke run exercises both curriculum paths.
+mode: object_union
+
+datasets:
+  - type: hypersim
+    root: ${HYPERSIM_ROOT}
+    train_subdir: train_small
+    val_subdir: val_small
+
+batch_size: 1
+object_union_num_frames_per_object: 8
+object_union_num_objects: 1
+object_union_pose_diverse_transition_epoch: 2
+use_object_union_sampling_for_val: true
+
+prompt_k_min: 20
+prompt_k_max: 20
+prompt_transition_epoch: 4
+
+mask_loss_weight: 20.0
+iou_loss_weight: 0.0
+
+epochs: 2
+patience: 50
+num_val_batches: 1
+
+output_dir: checkpoints/smoke
+ckpt_tag: smoke_hypersim_object_union
+wandb_project: sam-v-smoke
+finetune_from: null

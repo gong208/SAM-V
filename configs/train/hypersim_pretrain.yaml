@@ -1,0 +1,62 @@
+# Stage 1 -- Hypersim pre-training.
+#
+# This is the recipe of the released stage-1 checkpoint (sam_v_stage1.pth).
+#
+# Reproducing the paper does not require retraining stage 1 -- download
+# sam_v_stage1.pth and run configs/paper/scannetpp_finetune.yaml from
+# it. Retraining from this config will not land on the released weights
+# bitwise (different RNG stream).
+
+# object_union mode. This needs the object_union preprocessing over Hypersim
+# first:
+#     python preprocessing/precompute_instance_presence.py \
+#         --roots $HYPERSIM_ROOT/train $HYPERSIM_ROOT/val
+mode: object_union
+
+datasets:
+  - type: hypersim
+    root: ${HYPERSIM_ROOT}
+
+# num_objects null with target_total_frames 96 -> 96/8 = 12 object slots per
+# scene per epoch. Leaving target_total_frames unset is NOT equivalent:
+# num_objects null with no target makes _sample_object_ids take every object in
+# the scene.
+batch_size: 2
+object_union_num_frames_per_object: 8
+object_union_num_objects: null
+object_union_target_total_frames: 96
+
+object_union_pose_diverse_transition_epoch: 70
+
+# k=20 prompt points in both training and validation. This is NOT the 3-5 that
+# stage 2 uses.
+prompt_k_min: 20
+prompt_k_max: 20
+
+# The prompt curriculum: prompts ramp from the multi-frame half-positive /
+# half-negative form to single-frame all-positive over the first 70 epochs, then
+# stay single-frame -- the same prompts stage 2 uses.
+prompt_transition_epoch: 70
+
+# Loss: L = 20*focal + dice, with the IoU term added only in stage 2.
+mask_loss_weight: 20.0
+iou_loss_weight: 0.0
+
+# Note this is 1e-4, NOT the 8e-5 TrainConfig default that stage 2 uses.
+fusion_lr: 1.0e-4
+decoder_lr: 1.0e-4
+weight_decay: 0.01
+scheduler_t_max: 200
+scheduler_eta_min: 1.0e-6
+
+epochs: 210
+patience: 100
+use_object_union_sampling_for_val: true
+save_every_n_epochs: 10
+
+output_dir: checkpoints/hypersim_pretrain
+ckpt_tag: hypersim_pretrain
+
+# Stage 1 trains the fusion modules and mask decoder from their pretrained SAM
+# initialisation; there is no earlier checkpoint to start from.
+finetune_from: null

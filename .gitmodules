@@ -1,0 +1,18 @@
+[submodule "submodules/vggt"]
+	path = submodules/vggt
+	url = https://github.com/facebookresearch/vggt.git
+[submodule "submodules/sam-hq"]
+	path = submodules/sam-hq
+	url = https://github.com/gong208/sam-hq.git
+[submodule "submodules/panst3r"]
+	path = submodules/panst3r
+	url = https://github.com/naver/panst3r.git
+[submodule "submodules/point-sam"]
+	path = submodules/point-sam
+	url = https://github.com/zyc00/Point-SAM.git
+[submodule "submodules/odin"]
+	path = submodules/odin
+	url = https://github.com/ayushjain1144/odin.git
+[submodule "submodules/sam2"]
+	path = submodules/sam2
+	url = https://github.com/facebookresearch/sam2.git

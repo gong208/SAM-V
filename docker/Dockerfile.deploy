@@ -1,0 +1,25 @@
+# Self-contained SAM-V image: code + submodules baked on top of the deps image.
+# Weights are never baked in; they are mounted at runtime (docker/entrypoint.sh).
+#
+# Build from the REPO ROOT, after docker/build.sh and after
+# `git submodule update --init --recursive`:
+#   bash docker/build-deploy.sh
+ARG BASE_IMAGE=sam_v:latest
+FROM ${BASE_IMAGE}
+
+WORKDIR /workspace
+
+# .dockerignore keeps out .git, checkpoints, results, logs and weight files.
+COPY . /workspace
+
+# Fail the build, not the first run, if the submodules were not initialised.
+RUN for f in submodules/vggt/vggt/models/vggt.py submodules/sam-hq/segment_anything/build_sam.py; do \
+      test -f "$f" || { echo "missing $f: run 'git submodule update --init --recursive' before building" >&2; exit 1; }; \
+    done && \
+    mkdir -p submodules/vggt/checkpoints submodules/sam-hq/checkpoints && \
+    chmod +x docker/entrypoint.sh
+
+ENV PYTHONPATH=/workspace:/workspace/submodules/sam-hq:/workspace/submodules/vggt
+
+ENTRYPOINT ["/workspace/docker/entrypoint.sh"]
+CMD ["bash"]

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SAM-V</title>
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>SAM-V</h1>
+          <p id="status">Idle</p>
+        </div>
+        <div class="actions">
+          <label class="file-button">
+            Upload
+            <input id="fileInput" type="file" accept="image/*" multiple>
+          </label>
+          <button id="tipsButton" type="button">Tips</button>
+          <button id="runButton" type="button" disabled>Run</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <aside class="frame-panel">
+          <div class="panel-title">Frames</div>
+          <div id="frameList" class="frame-list"></div>
+        </aside>
+
+        <section class="canvas-panel">
+          <div class="toolstrip">
+            <button id="undoButton" type="button" disabled>Undo</button>
+            <button id="clearButton" type="button" disabled>Clear</button>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="promptCanvas"></canvas>
+            <div id="emptyState" class="empty-state">Upload images</div>
+          </div>
+        </section>
+
+        <aside class="result-panel">
+          <div class="panel-title">Results</div>
+          <div id="resultList" class="result-list"></div>
+        </aside>
+      </section>
+    </main>
+
+    <div id="tipsModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tipsTitle">
+      <section class="tips-modal">
+        <header class="modal-header">
+          <h2 id="tipsTitle">How to use SAM-V</h2>
+          <button id="closeTipsButton" class="icon-button" type="button" aria-label="Close tips">X</button>
+        </header>
+        <div class="tips-content">
+          <ol class="tips-steps">
+            <li>Upload one or more related images.</li>
+            <li>Select a frame and click points on the object.</li>
+            <li>Click Run and wait for SAM-V to return mask overlays.</li>
+            <li>Use the result panel to inspect each overlay.</li>
+          </ol>
+          <div class="tips-preview">
+            <div class="tips-row">
+              <div class="tips-label">Original</div>
+              <div class="tips-frame-grid">
+                <img data-tips-original alt="Example original frame 1">
+                <img data-tips-original alt="Example original frame 2">
+                <img data-tips-original alt="Example original frame 3">
+                <img data-tips-original alt="Example original frame 4">
+              </div>
+            </div>
+            <div class="tips-row">
+              <div class="tips-label">Overlay</div>
+              <div class="tips-frame-grid">
+                <img data-tips-overlay alt="Example SAM-V overlay frame 1">
+                <img data-tips-overlay alt="Example SAM-V overlay frame 2">
+                <img data-tips-overlay alt="Example SAM-V overlay frame 3">
+                <img data-tips-overlay alt="Example SAM-V overlay frame 4">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

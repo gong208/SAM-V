@@ -1,0 +1,38 @@
+data/
+output/
+.claude/
+hypersim/
+checkpoints/
+model_output/
+wandb/
+
+# Generated benchmark/visualization outputs and run logs
+results/
+*.log
+logs/
+3dtracking_benchmark_output*/
+3dtracking_benchmark_paper/
+nms_matching_viz_*/
+sanity_*/
+# iggt-local generated outputs (kept in place, not moved)
+iggt/v2_results_*/
+iggt/benchmark_data/
+# IGGT model weights staged into the tracked iggt/ tree (multi-GB, never commit)
+iggt/**/*.pth
+__pycache__/
+**/__pycache__/
+sam_vggt/**/__pycache__/
+utils/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*.pyzw
+*.pyzwz
+# Regenerable per-scene feature cache
+cache/
+
+# inference-timing partial results (written next to the script)
+benchmarks/timing/benchmark_results*.json

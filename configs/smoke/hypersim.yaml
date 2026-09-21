@@ -1,0 +1,29 @@
+# Tiny end-to-end smoke run: random mode on a small Hypersim split (needs no
+# object-union preprocessing). Single GPU, ~minutes. Not a training recipe.
+#
+#   WANDB_MODE=offline CUDA_VISIBLE_DEVICES=0 \
+#     python training/trainer.py --config configs/smoke/hypersim.yaml
+mode: random
+
+datasets:
+  - type: hypersim
+    root: ${HYPERSIM_ROOT}
+    train_subdir: train_small
+    val_subdir: val_small
+
+batch_size: 1
+base_num_frames: 8
+frame_sampling: random
+
+prompt_k_min: 3
+prompt_k_max: 5
+iou_loss_weight: 1.0
+
+epochs: 1
+patience: 50
+num_val_batches: 1
+
+output_dir: checkpoints/smoke
+ckpt_tag: smoke_hypersim_random
+wandb_project: sam-v-smoke
+finetune_from: null

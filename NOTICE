@@ -1,0 +1,62 @@
+SAM-V
+Copyright 2026 Jiangshan Gong, Yuqun Wu, Qiqian Fu, Yao Xiao,
+               Chuhang Zou, Shenlong Wang, Derek Hoiem
+
+This product includes software developed by third parties, as set out below.
+Licensed under the Apache License, Version 2.0; see the LICENSE file.
+
+--------------------------------------------------------------------------------
+Code derived from HQ-SAM / Segment Anything in High Quality
+  https://github.com/SysCV/sam-hq  --  Apache License 2.0
+  Copyright by the HQ-SAM team
+
+  utils/dataloader.py    derived from train/utils/dataloader.py, extended with
+                         the multi-scene ScanNet++ and Hypersim datasets, the
+                         object-union frame samplers and the rank-0 index
+                         broadcast.
+  utils/loss_mask.py     derived from train/utils/loss_mask.py, extended with a
+                         focal/dice weighting option and predicted_iou_loss.
+  utils/misc.py          derived from train/utils/misc.py, extended with the
+                         multi-view prompt-point samplers.
+
+  Those HQ-SAM files are themselves derived from Meta AI work:
+    Segment Anything          https://github.com/facebookresearch/segment-anything
+                              Apache License 2.0
+                              Copyright (c) Meta Platforms, Inc. and affiliates.
+    Mask2Former / detectron2  point_sample, get_uncertain_point_coords_with_randomness,
+                              dice_loss, sigmoid_ce_loss and calculate_uncertainty in
+                              utils/loss_mask.py
+    DETR / torchvision        the distributed and logging helpers in utils/misc.py
+                              Copyright (c) Facebook, Inc. and its affiliates.
+
+--------------------------------------------------------------------------------
+Code derived from VLM-3R
+  https://github.com/VITA-Group/VLM-3R  --  Apache License 2.0
+
+  model/sam_vggt_model.py  the CrossAttentionFusion module is adapted from
+                           llava/model/multimodal_fusion_block/builder.py.
+
+--------------------------------------------------------------------------------
+Dependencies referenced as submodules but NOT redistributed here
+
+Each is fetched from its own upstream repository and carries its own licence,
+which you accept independently of this one. Model weights are likewise obtained
+from their original sources.
+
+  VGGT        https://github.com/facebookresearch/vggt
+              Meta "VGGT License" (research materials agreement, with an
+              Acceptable Use Policy). It is NOT an OSI-approved licence and it
+              is more restrictive than Apache-2.0: distributing VGGT or any
+              derivative of it obliges you to pass on that same agreement.
+              Running SAM-V requires VGGT, so review it before any commercial
+              use of this pipeline.
+  SAM-HQ      https://github.com/SysCV/sam-hq  --  Apache License 2.0
+              (used here via a fork patched to use the plain MaskDecoder)
+  PanSt3R     https://github.com/naver/panst3r
+              NAVER licence -- NON-COMMERCIAL. Baseline comparison only.
+  Point-SAM   https://github.com/zyc00/Point-SAM  --  MIT
+  ODIN        https://github.com/ayushjain1144/odin  --  MIT
+
+Datasets (Hypersim, ScanNet++, ScanNet, and the IGGT 3D tracking benchmark) are
+not distributed with this repository. Obtain them from their maintainers and
+comply with their individual terms.

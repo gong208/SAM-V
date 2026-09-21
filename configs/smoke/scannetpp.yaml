@@ -1,0 +1,34 @@
+# Tiny end-to-end smoke run on ScanNet++ (object-union mode). Single GPU.
+# Requires the offline preprocessing (instance_presence/ + object_union.json);
+# see preprocessing/precompute_instance_presence.py.
+#
+#   WANDB_MODE=offline CUDA_VISIBLE_DEVICES=0 \
+#     python training/trainer.py --config configs/smoke/scannetpp.yaml
+#
+# Also run the 2-rank version before any multi-GPU change -- the single-GPU path
+# does not exercise world_size > 1:
+#   torchrun --nproc_per_node=2 training/trainer.py \
+#     --config configs/smoke/scannetpp.yaml
+mode: object_union
+
+datasets:
+  - type: scannetpp
+    root: ${SCANNETPP_ROOT}
+
+batch_size: 1
+object_union_num_objects: 1
+object_union_num_frames_per_object: 8
+use_object_union_sampling_for_val: true
+
+prompt_k_min: 3
+prompt_k_max: 5
+iou_loss_weight: 1.0
+
+epochs: 1
+patience: 50
+num_val_batches: 1
+
+output_dir: checkpoints/smoke
+ckpt_tag: smoke_scannetpp
+wandb_project: sam-v-smoke
+finetune_from: null

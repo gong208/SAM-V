@@ -1,0 +1,49 @@
+# Stage 2 -- ScanNet++ fine-tune, EXACTLY as the submitted paper run was launched.
+#
+# This is the configuration that produced the released checkpoint. Every value
+# here is taken from the config the run actually used; nothing is reconstructed.
+#
+# Provenance note, stated precisely: the run was launched with `epochs: 50` and
+# `save_every_n_epochs: 5`. The reported checkpoint is the epoch-20 PERIODIC
+# SNAPSHOT from that run. It was not produced by a 20-epoch schedule, and it was
+# not "selected by validation IoU" -- it is simply the snapshot that was
+# evaluated and reported.
+#
+# Launched on 8 GPUs:
+#   torchrun --nproc_per_node=8 training/trainer.py \
+#     --config configs/paper/scannetpp_finetune.yaml
+mode: object_union
+
+datasets:
+  - type: scannetpp
+    root: ${SCANNETPP_ROOT}
+
+batch_size: 2
+
+# Use precomputed SAM image embeddings from each scene's sam_embeddings/ dir
+# (skips the frozen SAM image encoder forward -> faster training). Build them
+# with preprocessing/precompute_sam_embeddings_scannetpp.py.
+use_offline_sam_embeddings: true
+offline_sam_embedding_subdir: sam_embeddings
+
+# Object-union sampler: all objects per scene, fully pose-diverse from the start
+object_union_num_frames_per_object: 8
+object_union_num_objects: null
+object_union_pose_diverse_transition_epoch: 0
+use_object_union_sampling_for_val: true
+
+prompt_k_min: 3
+prompt_k_max: 5
+
+# Learning rates are NOT overridden here: the run used the TrainConfig defaults
+# of 8e-5 for both fusion_lr and decoder_lr. Do not "modernise" this to 1e-4.
+
+epochs: 50
+patience: 20
+save_every_n_epochs: 5
+
+# Stage-1 initialisation (weights only; fresh optimizer/scheduler, epoch 0).
+# Download the stage-1 checkpoint and point this at it.
+finetune_from: ${STAGE1_CHECKPOINT}
+
+ckpt_tag: scannetpp_v2_finetune
