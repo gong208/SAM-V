@@ -28,7 +28,6 @@ preprocessing/    dataset preparation + offline SAM embeddings
 configs/          train/ (new work), paper/ (as submitted), smoke/ (fast paths)
 demos/            infer_custom_images.py, web/ (Flask demo)
 tools/            export_release_checkpoint.py
-docker/           Dockerfile + build/run scripts
 submodules/       vggt, sam-hq, sam2, panst3r, point-sam, odin
 results/          (gitignored) run outputs
 ```
@@ -104,7 +103,7 @@ There is also a Flask demo under `demos/web/` for clicking prompts in a browser.
 
 ## Datasets
 
-Nothing here is redistributed. Download each dataset from its maintainer and comply with its
+Please Download each dataset from its maintainer and comply with its
 terms. The three variables below are what the commands in the rest of this README refer to.
 
 ```bash
@@ -140,10 +139,6 @@ Nothing else is required. In particular skip `final_hdf5/` (the raw radiance ima
 `position`, `normal_*`, `tex_coord`, `render_entity_id`, and the `*_preview` renders of
 anything but colour. `depth_meters.hdf5` and `semantic.hdf5` are fine to keep if you want
 them for your own work, but no SAM-V training or evaluation code opens them.
-
-Camera intrinsics are **not** downloaded. Hypersim renders every scene with the same 60°
-horizontal field of view, so for the 1024×768 images `fx = fy = 512 / tan(30°) = 886.81`,
-`cx = 512`, `cy = 384` — constant across the dataset.
 
 Convert the above into `$HYPERSIM_ROOT/<split>/<scene_id>/` with zero-padded 5-digit frame
 stems. Stage 1 reads `train/` and `val/`; the Table 1 evaluation reads whatever directory
@@ -190,7 +185,7 @@ unzip processed_scannetpp_v2.zip
 
 **The train/val split is the official ScanNet++ one, not IGGT's.** We do not use the
 partition that ships with InsScene-15K. Scenes are assigned by the official ScanNet++ v2
-`nvs_sem_train.txt` (856 scenes) and `nvs_sem_val.txt` (50 scenes) lists, obtained from
+`nvs_sem_train.txt` (855 scenes) and `nvs_sem_val.txt` (50 scenes) lists, obtained from
 [ScanNet++](https://kaldir.vc.in.tum.de/scannetpp/) under its terms of use. Put the split
 files at `$SCANNETPP_ROOT/splits/` and move each scene directory into `$SCANNETPP_ROOT/train`
 or `$SCANNETPP_ROOT/val` to match.
@@ -247,7 +242,7 @@ $BENCH/{scannet,scannetpp}/<scene_id>/images/frame_XXXXXX.jpg
                                              frame_XXXXXX_label.npy
 ```
 
-Raw ScanNet and raw ScanNet++ are **not** needed for Table 2 — the benchmark ships the frames
+Raw ScanNet and raw ScanNet++ are not needed for Table 2: the benchmark ships the frames
 it scores.
 
 ## Reproducing the paper
