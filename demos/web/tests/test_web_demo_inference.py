@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from demos.infer_custom_images import build_sample_from_image_arrays
+from demos.web.inference import build_sample_from_image_arrays
 from demos.web.inference import (
     UploadedImage,
     build_uploaded_sample,

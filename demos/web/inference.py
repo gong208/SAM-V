@@ -10,15 +10,91 @@ from typing import Any
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from PIL import Image, ImageDraw
 
-from demos.infer_custom_images import build_sample_from_image_arrays
+from benchmarks.compare_baseline_sam2 import TARGET_SIZE
 
 
 SAFE_STEM_RE = re.compile(r"[^A-Za-z0-9_.-]+")
 MASK_RGBA = (0, 144, 255, 115)
 POS_POINT = (255, 220, 40)
 NEG_POINT = (235, 60, 60)
+
+
+def build_sample_from_image_arrays(
+    stems: list[str],
+    arrays: list[np.ndarray],
+    prompts: list[dict],
+    gt_mask_paths: list[str] | None = None,
+) -> dict:
+    """Build a SamVGGT/SAM2 sample from RGB arrays and point prompts.
+
+    Prompt coordinates are expressed in each source image's original pixel
+    coordinates and are scaled to TARGET_SIZE per prompted frame.
+    """
+    if not arrays:
+        raise ValueError("At least one image is required.")
+    if len(stems) != len(arrays):
+        raise ValueError("stems and arrays must have the same length.")
+    if not prompts:
+        raise ValueError("At least one point prompt is required.")
+
+    images: list[torch.Tensor] = []
+    original_sizes: list[tuple[int, int]] = []
+    for i, arr in enumerate(arrays):
+        if arr.ndim != 3 or arr.shape[2] != 3:
+            raise ValueError(f"Image {i} must be an RGB array with shape [H,W,3].")
+        orig_h, orig_w = arr.shape[:2]
+        if orig_h <= 0 or orig_w <= 0:
+            raise ValueError(f"Image {i} has invalid size: {orig_w}x{orig_h}.")
+        original_sizes.append((orig_h, orig_w))
+
+        t = torch.from_numpy(arr.astype(np.float32, copy=False)).permute(2, 0, 1).unsqueeze(0)
+        if t.shape[-2:] != TARGET_SIZE:
+            t = F.interpolate(t, size=TARGET_SIZE, mode="bilinear", align_corners=False)
+        images.append(t.squeeze(0))
+
+    H, W = TARGET_SIZE
+    coords = []
+    labels = []
+    frame_indices = []
+    for idx, p in enumerate(prompts):
+        try:
+            frame_index = int(p["frame_index"])
+            x = float(p["x"])
+            y = float(p["y"])
+            label = int(p["label"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Prompt {idx} must contain frame_index, x, y, and label.") from exc
+
+        if frame_index < 0 or frame_index >= len(arrays):
+            raise ValueError(f"Prompt {idx} frame_index out of range: {frame_index}.")
+        if label not in (0, 1):
+            raise ValueError(f"Prompt {idx} label must be 0 or 1.")
+
+        orig_h, orig_w = original_sizes[frame_index]
+        if x < 0 or y < 0 or x >= orig_w or y >= orig_h:
+            raise ValueError(
+                f"Prompt {idx} coordinate ({x:.1f}, {y:.1f}) is outside "
+                f"frame {frame_index} ({orig_w}x{orig_h})."
+            )
+
+        coords.append([x * (W / orig_w), y * (H / orig_h)])
+        labels.append(label)
+        frame_indices.append(frame_index)
+
+    return {
+        "images": torch.stack(images, dim=0).float(),
+        "frame_stems": stems,
+        "gt_mask_paths": gt_mask_paths or [],
+        "point_coords": torch.tensor(coords, dtype=torch.float32),
+        "point_labels": torch.tensor(labels, dtype=torch.long),
+        "point_frame_indices": torch.tensor(frame_indices, dtype=torch.long),
+        "original_sizes": original_sizes,
+        "H": H,
+        "W": W,
+    }
 
 
 @dataclass(frozen=True)

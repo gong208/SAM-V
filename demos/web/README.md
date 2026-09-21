@@ -33,7 +33,7 @@ server.
 ## Configuration
 
 - `SAM_V_CKPT`: SamVGGT checkpoint. Defaults to
-  `checkpoints/sam_vggt_epoch0020_scannetpp_v2_finetune.pth`.
+  `checkpoints/sam_v_stage2.pth`.
 - `DEVICE`: default `cuda:0`.
 - `AMP_DTYPE`: `fp16`, `bf16`, or `none`; default `fp16`.
 - `MAX_FRAMES`: default `16`.

@@ -26,7 +26,7 @@ benchmarks/       every evaluation entry point — see benchmarks/README.md
                     timing/                            wall-clock, not accuracy
 preprocessing/    dataset preparation + offline SAM embeddings
 configs/          train/ (new work), paper/ (as submitted), smoke/ (fast paths)
-demos/            infer_custom_images.py, web/ (Flask demo)
+demos/            web/ (browser demo: upload frames, click prompts)
 tools/            export_release_checkpoint.py
 submodules/       vggt, sam-hq, sam2, panst3r, point-sam, odin
 results/          (gitignored) run outputs
@@ -38,7 +38,16 @@ results/          (gitignored) run outputs
 
 ```bash
 git clone --recurse-submodules https://github.com/gong208/SAM-V.git
-cd sam-v
+cd SAM-V
+```
+
+`--recurse-submodules` also pulls the baselines' *own* nested submodules (point-SAM
+drags in NVIDIA/apex), which is several GB. For SAM-V alone, clone without it and
+init the two submodules you actually need:
+
+```bash
+git clone https://github.com/gong208/SAM-V.git && cd SAM-V
+git submodule update --init submodules/vggt submodules/sam-hq
 ```
 
 - `sam-hq` is a **patched fork** — it uses the plain `MaskDecoder`, with the HQ-only
@@ -78,8 +87,8 @@ are not redistributed here. Pass the SAM-V checkpoint as `--sam_v_ckpt`.
 Both live at **[huggingface.co/Frank-Gong123/SAM-V](https://huggingface.co/Frank-Gong123/SAM-V)**:
 
 ```bash
-pip install huggingface_hub   # already in requirements.txt
-huggingface-cli download Frank-Gong123/SAM-V sam_v_stage2.pth --local-dir checkpoints
+# the `hf` CLI ships with huggingface_hub, already in requirements.txt
+hf download Frank-Gong123/SAM-V sam_v_stage2.pth --local-dir checkpoints
 ```
 
 **5. `PYTHONPATH` is mandatory and non-obvious.** The repo root alone is not
@@ -92,14 +101,20 @@ export PYTHONPATH="$PWD:$PWD/submodules/sam-hq:$PWD/submodules/vggt"
 
 ## Quick start demo with your own images
 
+A browser demo (FastAPI + uvicorn): upload frames of one scene, click points on any
+frame, get a mask of that instance on every frame.
+
 ```bash
-python demos/infer_custom_images.py \
-  --image_dir /path/to/frames \
-  --sam_v_ckpt /path/to/sam_v.pth \
-  --output_dir results/demo
+pip install -r requirements-web.txt
+SAM_V_CKPT=/path/to/sam_v_stage2.pth \
+  PYTHONPATH="$PWD:$PWD/submodules/sam-hq:$PWD/submodules/vggt" \
+  uvicorn demos.web.app:app --host 127.0.0.1 --port 7860
 ```
 
-There is also a Flask demo under `demos/web/` for clicking prompts in a browser.
+Open `http://localhost:7860`, add images, click positive points, and run. No ground
+truth and no particular filenames are needed — any images of the same scene work.
+`demos/web/README.md` documents the rest of the knobs (device, AMP dtype, frame and
+upload caps, rate limiting, output TTL).
 
 ## Datasets
 
@@ -176,7 +191,7 @@ It is one zip split byte-wise across 53 parts (~227 GB), so `cat` the parts back
 before unzipping:
 
 ```bash
-huggingface-cli download lifuguan/InsScene-15K --repo-type dataset \
+hf download lifuguan/InsScene-15K --repo-type dataset \
   --include "processed_scannetpp_v2/*" --local-dir /path/to/download
 cat /path/to/download/processed_scannetpp_v2/processed_scannetpp_v2.zip.* \
   > processed_scannetpp_v2.zip
@@ -229,7 +244,7 @@ so stage 2 can skip that forward pass. `configs/paper/scannetpp_finetune.yaml` s
 Source: **[lifuguan/IGGT_Benchmark](https://huggingface.co/datasets/lifuguan/IGGT_Benchmark)**.
 
 ```bash
-huggingface-cli download lifuguan/IGGT_Benchmark --repo-type dataset \
+hf download lifuguan/IGGT_Benchmark --repo-type dataset \
   --include "3D Tracking Benchmark/*" --local-dir /path/to/IGGT_Benchmark
 ```
 

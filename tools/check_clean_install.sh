@@ -125,7 +125,6 @@ for m in \
   benchmarks/compare_baseline_sam2.py \
   benchmarks/timing/benchmark_inference_time.py \
   training/trainer.py \
-  demos/infer_custom_images.py \
   masks/everything_mode_demo.py \
   tools/export_release_checkpoint.py
 do
