@@ -353,7 +353,7 @@ provenance.
   title   = {SAM-V: Geometry-Aware Segment Anything for Multi-View Instance Segmentation},
   author  = {Gong, Jiangshan and Wu, Yuqun and Fu, Qiqian and Xiao, Yao and
              Zou, Chuhang and Wang, Shenlong and Hoiem, Derek},
-  journal = {arXiv preprint 	arXiv:2609.25490},
+  journal = {arXiv preprint arXiv:2609.25490},
   year    = {2026}
 }
 ```
